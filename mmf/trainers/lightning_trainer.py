@@ -14,6 +14,7 @@ from mmf.utils.general import get_max_updates, print_model_parameters
 from mmf.utils.logger import TensorboardLogger, setup_output_folder
 from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning import Trainer, seed_everything
+from pytorch_lightning.callbacks import ModelCheckpoint
 
 
 logger = logging.getLogger(__name__)
@@ -45,7 +46,7 @@ class LightningTrainer(BaseTrainer):
             callbacks=self._callbacks,
             max_steps=self._max_updates,
             default_root_dir=get_mmf_env(key="log_dir"),
-            **lightning_params_dict
+            **lightning_params_dict,
         )
 
     def configure_device(self) -> None:
@@ -97,8 +98,24 @@ class LightningTrainer(BaseTrainer):
         # moved metrics into the model object
         self.model.metrics = Metrics(metrics)
 
+    def monitor_criteria(self):
+        monitor_criteria = self.training_config.early_stop.criteria
+        if "val" not in monitor_criteria:
+            monitor_criteria = f"val/{monitor_criteria}"
+        return monitor_criteria
+
     def configure_callbacks(self) -> None:
         self._callbacks = [LightningLoopCallback(self)]
+        # TODO @sash, next PR: early stopping
+        train_callback = ModelCheckpoint(
+            monitor=None,
+            every_n_train_steps=self.config.training.checkpoint_interval,
+            dirpath=get_mmf_env(key="save_dir"),
+            filename="models/model_{step}",
+            save_last=True,
+            verbose=True,
+        )
+        self._callbacks.append(train_callback)
 
     def train(self) -> None:
         logger.info("===== Model =====")
