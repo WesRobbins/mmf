@@ -146,6 +146,9 @@ class MMFTrainer(
         self.dataset_loader.teardown()
 
     def inference(self):
+        if self.conig.wes == 'wes':
+            print("Config File has registered wes change")
+            return 0
         dataset_type = []
         if "val" in self.run_type:
             dataset_type.append("val")
