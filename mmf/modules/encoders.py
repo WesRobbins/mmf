@@ -118,10 +118,16 @@ class FinetuneFasterRcnnFpnFc7(ImageFeatureEncoder):
         super().__init__()
         model_data_dir = get_absolute_path(config.model_data_dir)
 
+
         if not os.path.isabs(config.weights_file):
             weights_file = os.path.join(model_data_dir, config.weights_file)
+        else:
+            weight_file = config.weights_file
         if not os.path.isabs(config.bias_file):
             bias_file = os.path.join(model_data_dir, config.bias_file)
+        else:
+            bias_file = config.bias_file
+
 
         if not PathManager.exists(bias_file) or not PathManager.exists(weights_file):
             download_path = download_pretrained_model("detectron.vmb_weights")
