@@ -9,11 +9,19 @@ from mmf.utils.flags import flags
 from mmf.utils.inference import Inference
 from mmf.utils.logger import setup_logger
 from omegaconf import OmegaConf
+from mmf.common.registry import registry
 
 
 def construct_config(opts: typing.List[str]):
-    config = OmegaConf.create({"checkpoint_path": ""})
-    return _merge_with_dotlist(config, opts)
+    # config = OmegaConf.create({"checkpoint_path": ""})
+    # CHANGE HERE
+    config = OmegaConf.load("/content/drive/MyDrive/data/mmf/models/butd.defaults/config.yaml")
+    config.checkpoint_path="/content/drive/MyDrive/data/mmf/models/butd.defaults"
+    registry.register("config", config)
+    print(config)
+
+
+    return _merge_with_dotlist(config, opts)#, skip_missing=True)
 
 
 def interactive(opts: typing.Optional[typing.List[str]] = None):
@@ -36,6 +44,7 @@ def interactive(opts: typing.Optional[typing.List[str]] = None):
     logger = logging.getLogger("mmf_cli.interactive")
 
     config = construct_config(args.opts)
+    
     inference = Inference(checkpoint_path=config.checkpoint_path)
     logger.info("Enter 'exit' at any point to terminate.")
     logger.info("Enter an image URL:")

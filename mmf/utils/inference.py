@@ -11,17 +11,23 @@ from mmf.utils.general import get_current_device
 from omegaconf import OmegaConf
 from PIL import Image
 
+from mmf.common.registry import registry
+from mmf.datasets.multi_datamodule import MultiDataModule
+
 
 class Inference:
     def __init__(self, checkpoint_path: str = None):
         self.checkpoint = checkpoint_path
         assert self.checkpoint is not None
+        self.dataset_loader = MultiDataModule(registry.get("config"))
         self.processor, self.feature_extractor, self.model = self._build_model()
 
     def _build_model(self):
         self.model_items = load_pretrained_model(self.checkpoint)
         self.config = OmegaConf.create(self.model_items["full_config"])
         dataset_name = list(self.config.dataset_config.keys())[0]
+        print("PROCESSORS")
+        print(self.config.dataset_config[dataset_name].processors)
         processor = build_processors(
             self.config.dataset_config[dataset_name].processors
         )
