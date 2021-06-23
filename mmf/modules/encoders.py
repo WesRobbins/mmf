@@ -11,7 +11,8 @@ from typing import Any
 import torch
 import torchvision
 from mmf.common.registry import registry
-from mmf.models.frcnn import GeneralizedRCNN
+# from mmf.models.frcnn import GeneralizedRCNN
+from tools.scripts.features.frcnn.modeling_frcnn import GeneralizedRCNN
 from mmf.modules.embeddings import ProjectionEmbedding, TextEmbedding
 from mmf.modules.hf_layers import BertModelJit
 from mmf.modules.layers import Identity
@@ -24,6 +25,8 @@ from omegaconf import MISSING, OmegaConf
 from torch import Tensor, nn
 from transformers.configuration_auto import AutoConfig
 from transformers.modeling_auto import AutoModel
+
+from omegaconf import OmegaConf
 
 
 try:
@@ -417,7 +420,10 @@ class FRCNNImageEncoder(Encoder):
         self.config = config
         pretrained = config.get("pretrained", False)
         pretrained_path = config.get("pretrained_path", None)
-        self.frcnn = GeneralizedRCNN(config)
+        # ADDED HERE
+        frcnn_config = OmegaConf.load('/content/drive/MyDrive/data/mmf/models/frcnn/config2.yaml')
+        print(frcnn_config)
+        self.frcnn = GeneralizedRCNN(frcnn_config)
         if pretrained:
             state_dict = torch.load(pretrained_path)
             self.frcnn.load_state_dict(state_dict)
