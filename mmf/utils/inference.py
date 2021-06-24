@@ -15,13 +15,13 @@ import omegaconf
 from mmf.common.registry import registry
 from mmf.datasets.multi_datamodule import MultiDataModule
 from mmf.datasets.builders.coco.builder import COCOBuilder
+from mmf.datasets.builders.textvqa.builder import TextVQABuilder
 
 
 class Inference:
     def __init__(self, checkpoint_path: str = None):
         self.checkpoint = checkpoint_path
         assert self.checkpoint is not None
-        # registry.register(COCOBuilder(), "coco"
         self.dataset_loader = MultiDataModule(registry.get("config"))
         self.processor, self.feature_extractor, self.model = self._build_model()
 
@@ -43,7 +43,7 @@ class Inference:
         )
         ckpt = self.model_items["checkpoint"]
         model = build_model(self.model_items["config"])
-        model.load_state_dict(ckpt)
+        model.load_state_dict(ckpt, strict=False)
 
         return processor, feature_extractor, model
 
