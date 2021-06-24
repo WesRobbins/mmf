@@ -48,10 +48,10 @@ def interactive(opts: typing.Optional[typing.List[str]] = None):
     inference = Inference(checkpoint_path=config.checkpoint_path)
     logger.info("Enter 'exit' at any point to terminate.")
     logger.info("Enter an image URL:")
-    image_url = input()
+    image_url = "https://media-cldnry.s-nbcnews.com/image/upload/newscms/2020_45/3425385/201103-joe-biden-cs-124p-3425385.jpg" #input()
     logger.info("Got image URL.")
     logger.info("Enter text:")
-    text = input()
+    text = "What is this" #input()
     logger.info("Got text input.")
     while text != "exit":
         logger.info("Running inference on image and text input.")

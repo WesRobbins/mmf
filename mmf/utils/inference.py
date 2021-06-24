@@ -43,6 +43,7 @@ class Inference:
         )
         ckpt = self.model_items["checkpoint"]
         model = build_model(self.model_items["config"])
+        model.eval()
         model.load_state_dict(ckpt, strict=False)
 
         return processor, feature_extractor, model
@@ -75,7 +76,7 @@ class Inference:
             frcnn.eval()
 
             print(self.feature_extractor)
-            image_output = frcnn(
+            output = frcnn(
                 image_preprocessed,
                 sizes=sizes,
                 scales_yx=scales_yx,
@@ -83,22 +84,56 @@ class Inference:
                 max_detections=max_detect,
                 return_tensors="pt",
             )
-            print(image_output["roi_features"].size)
-            image_output = image_output["roi_features"]
+            print(output["roi_features"].size)
+            image_output = output["roi_features"].squeeze(0)
+            obj_boxes = output["normalized_boxes"].squeeze(0)
         else:
             print(self.processor)
             image_preprocessed = self.processor["image_processor"](img)
             image_output = self.feature_extractor(image_preprocessed)
 
         sample = Sample(text_output)
+        sample.text_len = torch.tensor(len(sample.text))
+        sample.text = sample.input_ids
         sample.image_feature_0 = image_output
+        sample.obj_bbox_coordinates = obj_boxes
+
+        sample.train_prev_inds = torch.zeros(12, dtype=torch.int64)
+
+        sample.image_info_0 = Sample()
+        sample.image_info_0.max_features = torch.tensor(image_output.size(1))
+
+        sample.image_feature_1 = torch.zeros(60,2048)
+        sample.image_info_1 = Sample()
+        sample.image_info_1.max_features = torch.tensor(60)#(image_output.size(1))
+
+        sample.context = torch.zeros(50,300)
+        sample.context_tokens = torch.zeros(4094)
+        sample.context_feature_0 = torch.zeros(50,300)
+        sample.context_info_0 = Sample()
+        sample.context_info_0.max_features = torch.tensor(50)
+
+        sample.context_feature_1 = torch.zeros(50, 604)
+        sample.order_vectors = torch.zeros(50,50)       # this may be deprecated
+        sample.ocr_bbox_coordinates = torch.zeros(50,4)
+
         sample_list = SampleList([sample])
         sample_list = sample_list.to(get_current_device())
         self.model = self.model.to(get_current_device())
         output = self.model(sample_list)
         sample_list.id = [sample_list.input_ids[0][0]]
         report = Report(sample_list, output)
-        answers = self.processor["output_processor"](report)
-        answer = self.processor["answer_processor"].idx2word(answers[0]["answer"])
+        print("SCORES")
+        print(report.scores.size())
+        print(report.scores)
+        print(report.id)
+        # print(report.id.size())
+        print(len(report.id))
+
+        # from mmf.datasets.processors.prediction_processors import ArgMaxPredictionProcessor
+        # self.processor["output_processor"] = ArgMaxPredictionProcessor(config={})
+        # answers = self.processor["output_processor"](report)
+        answers = report.scores.argmax(dim=1)
+        answer = self.processor["answer_processor"](answers[0])
 
         return answer
