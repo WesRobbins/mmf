@@ -133,7 +133,13 @@ class Inference:
         # from mmf.datasets.processors.prediction_processors import ArgMaxPredictionProcessor
         # self.processor["output_processor"] = ArgMaxPredictionProcessor(config={})
         # answers = self.processor["output_processor"](report)
-        answers = report.scores.argmax(dim=1)
-        answer = self.processor["answer_processor"](answers[0])
+        answers = report.scores.argmax(dim=2)
+        print(answers)
+        print(answers.size())
 
+        answer = ""
+        for i in range(12):
+            answer += self.processor["answer_processor"].answer_vocab.idx2word(answers[0][i]) + " "
+        print(type(answer))
+        print(answer)
         return answer

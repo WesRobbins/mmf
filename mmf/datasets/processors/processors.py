@@ -1305,7 +1305,7 @@ class M4CAnswerProcessor(BaseProcessor):
         }
         return unique_answer2score
 
-    def __call__(self, item):
+    def __call__(self, item):        
         answers = item["answers"]
 
         if not answers:
