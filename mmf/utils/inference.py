@@ -16,6 +16,7 @@ from mmf.common.registry import registry
 from mmf.datasets.multi_datamodule import MultiDataModule
 from mmf.datasets.builders.coco.builder import COCOBuilder
 from mmf.datasets.builders.textvqa.builder import TextVQABuilder
+from mmf.datasets.builders.textcaps.builder import TextCapsBuilder
 
 
 class Inference:
@@ -71,8 +72,17 @@ class Inference:
             # )
             image_preprocessed, sizes, scales_yx = image_processor(img)
 
+            frcnn_ckpt = torch.load('/content/drive/MyDrive/data/mmf/models/frcnn/pytorch_model.bin')
+            frcnn_ckpt2 = {}
+            for i in frcnn_ckpt.keys():
+                key = "frcnn."+i
+                frcnn_ckpt2[key] = frcnn_ckpt[i]
+            print(type(frcnn_ckpt2))
+            #print(ckpt.keys())
+
             from mmf.modules.encoders import FRCNNImageEncoder
-            frcnn = FRCNNImageEncoder(self.img_feature_encodings_config)
+            frcnn = FRCNNImageEncoder(pre_config)#(self.img_feature_encodings_config)
+            frcnn.load_state_dict(frcnn_ckpt2)
             frcnn.eval()
 
             print(self.feature_extractor)
@@ -84,9 +94,16 @@ class Inference:
                 max_detections=max_detect,
                 return_tensors="pt",
             )
-            print(output["roi_features"].size)
+            print(type(output))
+            print(output.keys())
+            print(output["roi_features"].size())
             image_output = output["roi_features"].squeeze(0)
             obj_boxes = output["normalized_boxes"].squeeze(0)
+            print(output["obj_ids"])
+            print(output["obj_probs"])
+            print(output["attr_ids"])
+            print(output["attr_probs"])
+            
         else:
             print(self.processor)
             image_preprocessed = self.processor["image_processor"](img)

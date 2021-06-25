@@ -15,8 +15,12 @@ from mmf.common.registry import registry
 def construct_config(opts: typing.List[str]):
     # config = OmegaConf.create({"checkpoint_path": ""})
     # CHANGE HERE
-    config = OmegaConf.load("/content/drive/MyDrive/data/mmf/models/m4c.textvqa.with_stvqa/config.yaml")
-    config.checkpoint_path="/content/drive/MyDrive/data/mmf/models/m4c.textvqa.with_stvqa"
+    m4c_path = '/content/drive/MyDrive/data/mmf/models/m4c.textvqa.with_stvqa'
+    m4c_cap_path = '/content/drive/MyDrive/data/mmf/models/m4c_captioner.textcaps.defaults'
+    path = m4c_cap_path
+    config_path = path+'/config.yaml'
+    config = OmegaConf.load(config_path)
+    config.checkpoint_path=path
     registry.register("config", config)
     print(config)
 
