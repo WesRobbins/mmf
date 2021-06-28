@@ -17,7 +17,7 @@ def construct_config(opts: typing.List[str]):
     # CHANGE HERE
     m4c_path = '/content/drive/MyDrive/data/mmf/models/m4c.textvqa.with_stvqa'
     m4c_cap_path = '/content/drive/MyDrive/data/mmf/models/m4c_captioner.textcaps.defaults'
-    path = m4c_cap_path
+    path = m4c_path
     config_path = path+'/config.yaml'
     config = OmegaConf.load(config_path)
     config.checkpoint_path=path
@@ -55,20 +55,22 @@ def interactive(opts: typing.Optional[typing.List[str]] = None):
     image_url = "https://media-cldnry.s-nbcnews.com/image/upload/newscms/2020_45/3425385/201103-joe-biden-cs-124p-3425385.jpg" #input()
     logger.info("Got image URL.")
     logger.info("Enter text:")
-    text = "What is this" #input()
+    text = "What is happening?" #input()
     logger.info("Got text input.")
     while text != "exit":
         logger.info("Running inference on image and text input.")
         answer = inference.forward(image_url, {"text": text}, image_format="url")
         logger.info("Model response: " + answer)
-        logger.info(
-            f"Enter another image URL or leave it blank to continue using {image_url}:"
-        )
-        new_image_url = input()
-        if new_image_url != "":
-            image_url = new_image_url
-        if new_image_url == "exit":
-            break
+
+        
+        # logger.info(
+        #     f"Enter another image URL or leave it blank to continue using {image_url}:"
+        # )
+        # new_image_url = input()
+        # if new_image_url != "":
+        #     image_url = new_image_url
+        # if new_image_url == "exit":
+        #     break
         logger.info("Enter another text input:")
         text = input()
 

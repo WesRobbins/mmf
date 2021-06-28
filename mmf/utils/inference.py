@@ -57,82 +57,114 @@ class Inference:
             img = np.array(Image.open(requests.get(image_path, stream=True).raw))
         img = torch.as_tensor(img)
 
-        # if self.model_items["config"].image_feature_encodings.type == "frcnn":
-        if self.img_feature_encodings_config.type == "frcnn" or "finetune_faster_rcnn_fpn_fc7":
-            # max_detect = self.model_items[
-            #     "config"
-            # ].image_feature_encodings.params.max_detections
-            max_detect = self.img_feature_encodings_config.params.max_detections
+        need = False
+        if need:
+            # if self.model_items["config"].image_feature_encodings.type == "frcnn":
+            if self.img_feature_encodings_config.type == "frcnn" or "finetune_faster_rcnn_fpn_fc7":
+                # max_detect = self.model_items[
+                #     "config"
+                # ].image_feature_encodings.params.max_detections
+                max_detect = self.img_feature_encodings_config.params.max_detections
 
-            pre_config = omegaconf.OmegaConf.load('/content/drive/MyDrive/data/mmf/models/frcnn/config2.yaml')
-            from tools.scripts.features.frcnn.processing_image import Preprocess
-            image_processor = Preprocess(pre_config)
-            # image_preprocessed, sizes, scales_yx = self.processor["image_processor"](
-            #     img
-            # )
-            image_preprocessed, sizes, scales_yx = image_processor(img)
+                pre_config = omegaconf.OmegaConf.load('/content/drive/MyDrive/data/mmf/models/frcnn/config2.yaml')
+                from tools.scripts.features.frcnn.processing_image import Preprocess
+                image_processor = Preprocess(pre_config)
+                # image_preprocessed, sizes, scales_yx = self.processor["image_processor"](
+                #     img
+                # )
+                image_preprocessed, sizes, scales_yx = image_processor(img)
 
-            frcnn_ckpt = torch.load('/content/drive/MyDrive/data/mmf/models/frcnn/pytorch_model.bin')
-            frcnn_ckpt2 = {}
-            for i in frcnn_ckpt.keys():
-                key = "frcnn."+i
-                frcnn_ckpt2[key] = frcnn_ckpt[i]
-            print(type(frcnn_ckpt2))
-            #print(ckpt.keys())
+                frcnn_ckpt = torch.load('/content/drive/MyDrive/data/mmf/models/frcnn/pytorch_model.bin')
+                frcnn_ckpt2 = {}
+                for i in frcnn_ckpt.keys():
+                    key = "frcnn."+i
+                    frcnn_ckpt2[key] = frcnn_ckpt[i]
+                print(type(frcnn_ckpt2))
+                #print(ckpt.keys())
 
-            from mmf.modules.encoders import FRCNNImageEncoder
-            frcnn = FRCNNImageEncoder(pre_config)#(self.img_feature_encodings_config)
-            frcnn.load_state_dict(frcnn_ckpt2)
-            frcnn.eval()
+                from mmf.modules.encoders import FRCNNImageEncoder
+                frcnn = FRCNNImageEncoder(pre_config)#(self.img_feature_encodings_config)
+                frcnn.load_state_dict(frcnn_ckpt2)
+                frcnn.eval()
 
-            print(self.feature_extractor)
-            output = frcnn(
-                image_preprocessed,
-                sizes=sizes,
-                scales_yx=scales_yx,
-                padding=None,
-                max_detections=max_detect,
-                return_tensors="pt",
-            )
-            print(type(output))
-            print(output.keys())
-            print(output["roi_features"].size())
-            image_output = output["roi_features"].squeeze(0)
-            obj_boxes = output["normalized_boxes"].squeeze(0)
-            print(output["obj_ids"])
-            print(output["obj_probs"])
-            print(output["attr_ids"])
-            print(output["attr_probs"])
-            
+                print(self.feature_extractor)
+                output = frcnn(
+                    image_preprocessed,
+                    sizes=sizes,
+                    scales_yx=scales_yx,
+                    padding=None,
+                    max_detections=max_detect,
+                    return_tensors="pt",
+                )
+                print(type(output))
+                print(output.keys())
+                print(output["roi_features"].size())
+                image_output = output["roi_features"].squeeze(0)
+                # obj_boxes = output["normalized_boxes"].squeeze(0)
+                obj_boxes = output["boxes"].squeeze(0)
+                print(output["obj_ids"])
+                print(output["obj_probs"])
+                print(output["attr_ids"])
+                print(output["attr_probs"])
+                
+            else:
+                print(self.processor)
+                image_preprocessed = self.processor["image_processor"](img)
+                image_output = self.feature_extractor(image_preprocessed)
+
+        # if features already saved in as npy
         else:
-            print(self.processor)
-            image_preprocessed = self.processor["image_processor"](img)
-            image_output = self.feature_extractor(image_preprocessed)
+            img = np.load('/content/drive/MyDrive/data/mmf/datasets/new/features/image.npy', allow_pickle=True)
+            img_info = np.load('/content/drive/MyDrive/data/mmf/datasets/new/features/image_info.npy', allow_pickle=True)
+
+            image_output = torch.from_numpy(img)
+            obj_boxes = img_info.item()['bbox']
+            sums = obj_boxes.sum(axis=1)
+            obj_boxes = obj_boxes/ sums[:, np.newaxis]
+            obj_boxes = torch.from_numpy(obj_boxes) 
+
 
         sample = Sample(text_output)
         sample.text_len = torch.tensor(len(sample.text))
         sample.text = sample.input_ids
-        sample.image_feature_0 = image_output
-        sample.obj_bbox_coordinates = obj_boxes
+        sample.image_feature_0 = image_output#[:2]
+        sample.obj_bbox_coordinates = obj_boxes#[:2]
 
         sample.train_prev_inds = torch.zeros(12, dtype=torch.int64)
 
+        
         sample.image_info_0 = Sample()
         sample.image_info_0.max_features = torch.tensor(image_output.size(1))
 
-        sample.image_feature_1 = torch.zeros(60,2048)
-        sample.image_info_1 = Sample()
-        sample.image_info_1.max_features = torch.tensor(60)#(image_output.size(1))
+        NUM_OCR = 0
+        MAX_OCR = 0
 
-        sample.context = torch.zeros(50,300)
-        sample.context_tokens = torch.zeros(4094)
-        sample.context_feature_0 = torch.zeros(50,300)
+        from  mmf.datasets.processors.processors import FastTextProcessor, SimpleWordProcessor
+        cfg = registry.get("config")
+        simple = SimpleWordProcessor()
+        tokens = simple({"text": "this is Joe Biden's"})
+        print(tokens)
+
+        fasttext = FastTextProcessor(cfg.dataset_config.textvqa.processors.context_processor.params)
+        print(fasttext)
+        context = fasttext({"tokens": tokens})
+        print(context)
+        import sys 
+        sys.exit()
+
+        sample.image_feature_1 = torch.zeros(NUM_OCR,2048)
+        sample.image_info_1 = Sample()
+        sample.image_info_1.max_features = torch.tensor(MAX_OCR)#(image_output.size(1))
+
+        sample.context = torch.zeros(NUM_OCR,300)
+        sample.context_tokens = torch.zeros(0)
+        sample.context_feature_0 = torch.zeros(NUM_OCR,300)
         sample.context_info_0 = Sample()
         sample.context_info_0.max_features = torch.tensor(50)
 
-        sample.context_feature_1 = torch.zeros(50, 604)
-        sample.order_vectors = torch.zeros(50,50)       # this may be deprecated
-        sample.ocr_bbox_coordinates = torch.zeros(50,4)
+        sample.context_feature_1 = torch.zeros(NUM_OCR, 604)
+        sample.order_vectors = torch.zeros(NUM_OCR,50)       # this may be deprecated
+        sample.ocr_bbox_coordinates = torch.zeros(NUM_OCR,4)
 
         sample_list = SampleList([sample])
         sample_list = sample_list.to(get_current_device())
