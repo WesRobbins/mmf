@@ -18,6 +18,7 @@ from mmf.datasets.builders.coco.builder import COCOBuilder
 from mmf.datasets.builders.textvqa.builder import TextVQABuilder
 from mmf.datasets.builders.textcaps.builder import TextCapsBuilder
 
+from mmf.utils.distributed import object_to_byte_tensor
 
 class Inference:
     def __init__(self, checkpoint_path: str = None):
@@ -114,8 +115,8 @@ class Inference:
 
         # if features already saved in as npy
         else:
-            img = np.load('/content/drive/MyDrive/data/mmf/datasets/new/features/image.npy', allow_pickle=True)
-            img_info = np.load('/content/drive/MyDrive/data/mmf/datasets/new/features/image_info.npy', allow_pickle=True)
+            img = np.load('/content/drive/MyDrive/data/mmf/datasets/new/features/image2.npy', allow_pickle=True)
+            img_info = np.load('/content/drive/MyDrive/data/mmf/datasets/new/features/image2_info.npy', allow_pickle=True)
 
             image_output = torch.from_numpy(img)
             obj_boxes = img_info.item()['bbox']
@@ -123,6 +124,17 @@ class Inference:
             obj_boxes = obj_boxes/ sums[:, np.newaxis]
             obj_boxes = torch.from_numpy(obj_boxes) 
 
+
+        ### Question or Caption Tuple ###
+        question = True
+        ################################
+        cfg = registry.get("config")
+        if question:
+            end_ind = 5000
+            ds_config = cfg.dataset_config.textvqa
+        else:
+            end_ind = 6736
+            ds_config = cfg.dataset_config.textcaps
 
         sample = Sample(text_output)
         sample.text_len = torch.tensor(len(sample.text))
@@ -136,38 +148,51 @@ class Inference:
         sample.image_info_0 = Sample()
         sample.image_info_0.max_features = torch.tensor(image_output.size(1))
 
-        NUM_OCR = 0
-        MAX_OCR = 0
+        NUM_OCR = 50
+        MAX_OCR = 50
 
-        from  mmf.datasets.processors.processors import FastTextProcessor, SimpleWordProcessor
-        cfg = registry.get("config")
+        from  mmf.datasets.processors.processors import FastTextProcessor, SimpleWordProcessor, PhocProcessor
+        
         simple = SimpleWordProcessor()
         ocr_list = ["Joe Biden"]
         tokens = [simple({"text": word})["text"] for word in ocr_list]
         # tokens = [token for ]
         print(tokens)
 
-        fasttext = FastTextProcessor(cfg.dataset_config.textvqa.processors.context_processor.params)
+        fasttext = FastTextProcessor(ds_config.processors.context_processor.params)
         print(fasttext)
         context = fasttext({"tokens": tokens})
         print(context)
         print(context.keys())
-        import sys 
-        sys.exit()
 
-        sample.image_feature_1 = torch.zeros(NUM_OCR,2048)
+
+        sample.image_feature_1 = torch.ones(NUM_OCR,2048)*.1
         sample.image_info_1 = Sample()
         sample.image_info_1.max_features = torch.tensor(MAX_OCR)#(image_output.size(1))
 
-        sample.context = torch.zeros(NUM_OCR,300)
-        sample.context_tokens = torch.zeros(0)
-        sample.context_feature_0 = torch.zeros(NUM_OCR,300)
-        sample.context_info_0 = Sample()
-        sample.context_info_0.max_features = torch.tensor(50)
+        sample.context = context["text"]
+        sample.ocr_tokens = context["tokens"]
 
-        sample.context_feature_1 = torch.zeros(NUM_OCR, 604)
+        sample.context_tokens = object_to_byte_tensor(context["tokens"])
+        sample.context_feature_0 = context["text"]
+        sample.context_info_0 = Sample()
+        sample.context_info_0.max_features = context["length"]
+        # sample.context = torch.zeros(NUM_OCR,300)
+        # sample.context_tokens = torch.zeros(0)
+        # sample.context_feature_0 = torch.zeros(NUM_OCR,300)
+        # sample.context_info_0 = Sample()
+        # sample.context_info_0.max_features = torch.tensor(50)
+        
+        phoc = PhocProcessor(ds_config.processors.phoc_processor.params)
+        context_phoc = phoc({"tokens": tokens})
+        sample.context_feature_1 = context_phoc["text"]
+        sample.context_info_1 = Sample()
+        sample.context_info_1.max_features = context_phoc["length"]
+        #sample.context_feature_1 = torch.zeros(NUM_OCR, 604)
+
         sample.order_vectors = torch.zeros(NUM_OCR,50)       # this may be deprecated
         sample.ocr_bbox_coordinates = torch.zeros(NUM_OCR,4)
+        sample.ocr_bbox_coordinates[0] = obj_boxes[5]
 
         sample_list = SampleList([sample])
         sample_list = sample_list.to(get_current_device())
@@ -191,7 +216,10 @@ class Inference:
 
         answer = ""
         for i in range(12):
-            answer += self.processor["answer_processor"].answer_vocab.idx2word(answers[0][i]) + " "
+            if answers[0][i] < end_ind:
+                answer += self.processor["answer_processor"].answer_vocab.idx2word(answers[0][i]) + " "
+            else: 
+                answer += ocr_list[answers[0][i]-end_ind] + " "
         print(type(answer))
         print(answer)
         return answer
