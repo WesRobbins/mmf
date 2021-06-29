@@ -142,13 +142,16 @@ class Inference:
         from  mmf.datasets.processors.processors import FastTextProcessor, SimpleWordProcessor
         cfg = registry.get("config")
         simple = SimpleWordProcessor()
-        tokens = simple({"text": "this is Joe Biden's"})
+        ocr_list = ["Joe Biden"]
+        tokens = [simple({"text": word})["text"] for word in ocr_list]
+        # tokens = [token for ]
         print(tokens)
 
         fasttext = FastTextProcessor(cfg.dataset_config.textvqa.processors.context_processor.params)
         print(fasttext)
         context = fasttext({"tokens": tokens})
         print(context)
+        print(context.keys())
         import sys 
         sys.exit()
 
