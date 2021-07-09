@@ -191,7 +191,7 @@ def main():
 
         np.save(save_info_path, {"ocr_boxes": ocr_boxes, "ocr_tokens": ocr_tokens})
         np.save(save_feat_path, extracted_feat)
-        break
+        
 
 
 if __name__ == "__main__":
