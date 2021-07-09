@@ -161,7 +161,8 @@ def main():
     IMAGE_DIR = args.image_dir
     SAVE_DIR = args.save_dir
 
-    imdb = np.load(IMDB_FILE, allow_pickle=True)[1:]
+    # imdb = np.load(IMDB_FILE, allow_pickle=True)[1:]
+    imdb = np.load(IMDB_FILE, allow_pickle=True)
     # keep only one entry per image_id
     image_id2info = {info["image_id"]: info for info in imdb}
     imdb = list(image_id2info[k] for k in sorted(image_id2info))
@@ -190,6 +191,7 @@ def main():
 
         np.save(save_info_path, {"ocr_boxes": ocr_boxes, "ocr_tokens": ocr_tokens})
         np.save(save_feat_path, extracted_feat)
+        break
 
 
 if __name__ == "__main__":
