@@ -165,11 +165,11 @@ class M4C(BaseModel):
         self.answer_processor = registry.get(self._datasets[0] + "_answer_processor")
 
     def forward(self, sample_list):
-        print(sample_list.fields())
-        for i in sample_list.fields():
-            print(f"{i}: {type(sample_list[i])}")
-            if torch.is_tensor(sample_list[i]):
-                print(f"\t\tSize is {sample_list[i].size()}")
+        # print(sample_list.fields())
+        # for i in sample_list.fields():
+        #     print(f"{i}: {type(sample_list[i])}")
+        #     if torch.is_tensor(sample_list[i]):
+        #         print(f"\t\tSize is {sample_list[i].size()}")
         # print(sample_list["obj_bbox_coordinates"])
         # print(sample_list["image_info_0"])
         # print(sample_list["train_prev_inds"])
@@ -193,13 +193,10 @@ class M4C(BaseModel):
         fwd_results["txt_inds"] = sample_list.text
 
         # binary mask of valid text (question words) vs padding
-        print("CHECK TEXt SIZES")
-        print(sample_list.text_len.size())
-        print(sample_list.text.size(1))
+
         fwd_results["txt_mask"] = _get_mask(
             sample_list.text_len, sample_list.text.size(1)
         )
-        print(f"TEXT_MASK SIZE: {fwd_results['txt_mask'].size()}")
 
     def _forward_obj_encoding(self, sample_list, fwd_results):
         # object appearance feature: Faster R-CNN fc7
@@ -217,7 +214,6 @@ class M4C(BaseModel):
 
         # binary mask of valid object vs padding
         obj_nums = sample_list.image_info_0.max_features
-        print(obj_nums)
         # import sys
         # sys.exit()
         fwd_results["obj_mask"] = _get_mask(obj_nums, obj_mmt_in.size(1))
@@ -248,10 +244,10 @@ class M4C(BaseModel):
             ocr_phoc = torch.zeros_like(ocr_phoc)
         if self.remove_ocr_frcn:
             ocr_fc7 = torch.zeros_like(ocr_fc7)
-        print(f"ocr_fastext {ocr_fasttext.size()}")
-        print(f"ocr_phoc    {ocr_phoc.size()}")
-        print(f"ocr_fc7     {ocr_fc7.size()}")
-        print(f"ocr_order_v {ocr_order_vectors.size()}")
+        # print(f"ocr_fastext {ocr_fasttext.size()}")
+        # print(f"ocr_phoc    {ocr_phoc.size()}")
+        # print(f"ocr_fc7     {ocr_fc7.size()}")
+        # print(f"ocr_order_v {ocr_order_vectors.size()}")
         ocr_feat = torch.cat(
             [ocr_fasttext, ocr_phoc, ocr_fc7, ocr_order_vectors], dim=-1
         )
@@ -382,10 +378,10 @@ class TextBert(BertPreTrainedModel):
         assert not extended_attention_mask.requires_grad
         head_mask = [None] * self.config.num_hidden_layers
 
-        print(encoder_inputs.size())
-        print(extended_attention_mask.size())
-        print(len(head_mask))
-        print(self.config.num_hidden_layers)
+        # print(encoder_inputs.size())
+        # print(extended_attention_mask.size())
+        # print(len(head_mask))
+        # print(self.config.num_hidden_layers)
         # import sys
         # sys.exit()
         encoder_outputs = self.encoder(
@@ -533,9 +529,9 @@ class PrevPredEmbeddings(nn.Module):
         self.emb_dropout = nn.Dropout(config.hidden_dropout_prob)
 
     def forward(self, ans_emb, ocr_emb, prev_inds):
-        print("PREV PRED")
-        print(prev_inds.dim())
-        print(prev_inds.dtype)
+        # print("PREV PRED")
+        # print(prev_inds.dim())
+        # print(prev_inds.dtype)
         assert prev_inds.dim() == 2 and prev_inds.dtype == torch.long
         assert ans_emb.dim() == 2
 

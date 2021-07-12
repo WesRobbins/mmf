@@ -10,7 +10,7 @@ from mmf.common.registry import registry
 from mmf.datasets.base_dataset_builder import BaseDatasetBuilder
 # Let's assume for now that we have a dataset class called CLEVRDataset
 from mmf.datasets.builders.pac.dataset import PACDataset
-from mmf.utils.general import download_file, get_mmf_root
+# from mmf.utils.general import download_file, get_mmf_root
 
 
 logger = logging.getLogger(__name__)
