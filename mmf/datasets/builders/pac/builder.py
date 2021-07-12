@@ -11,6 +11,7 @@ from mmf.datasets.base_dataset_builder import BaseDatasetBuilder
 # Let's assume for now that we have a dataset class called CLEVRDataset
 from mmf.datasets.builders.pac.dataset import PACDataset
 # from mmf.utils.general import download_file, get_mmf_root
+from mmf.utils.general import get_mmf_root
 
 
 logger = logging.getLogger(__name__)
@@ -25,21 +26,22 @@ class PACBuilder(BaseDatasetBuilder):
         super().__init__("pac")
 
         # Assign the dataset class
-        self.dataset_class = PAC
+        self.dataset_class = PACDataset
 
     @classmethod
     def config_path(cls):
         return "configs/datasets/textvqa/defaults.yaml"
 
     def build(self, config, dataset):
-        download_folder = os.path.join(
-            get_mmf_root(), config.data_dir, config.data_folder
-        )
+        # download_folder = os.path.join(
+        #     get_mmf_root(), config.data_dir, config.data_folder
+        # )
 
-        file_name = self.DOWNLOAD_URL.split("/")[-1]
-        local_filename = os.path.join(download_folder, file_name)
+        # file_name = self.DOWNLOAD_URL.split("/")[-1]
+        # local_filename = os.path.join(download_folder, file_name)
 
-        extraction_folder = os.path.join(download_folder, ".".join(file_name.split(".")[:-1]))
+        # extraction_folder = os.path.join(download_folder, ".".join(file_name.split(".")[:-1]))
+        extraction_folder = '/content/drive/MyDrive/NEW_DATASET/'
         self.data_folder = extraction_folder
 
         # # Either if the zip file is already present or if there are some
