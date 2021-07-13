@@ -22,11 +22,11 @@ dataset_config:
     annotation_style: textcaps
     features:
      train:
-      - /content/drive/MyDrive/NEW_DATASET/features/obj_lmdb/data.lmdb,/content/drive/MyDrive/NEW_DATASET/features/spec_lmdb/data.lmdb
+      - /content/drive/MyDrive/NEW_DATASET/features/obj.lmdb,/content/drive/MyDrive/NEW_DATASET/features/spec.lmdb
      val:
-      - /content/drive/MyDrive/NEW_DATASET/features/obj_lmdb/data.lmdb,/content/drive/MyDrive/NEW_DATASET/features/spec_lmdb/data.lmdb
+      - /content/drive/MyDrive/NEW_DATASET/features/obj.lmdb,/content/drive/MyDrive/NEW_DATASET/features/spec.lmdb
      test:
-      - /content/drive/MyDrive/NEW_DATASET/features/obj_lmdb/data.lmdb,/content/drive/MyDrive/NEW_DATASET/features/spec_lmdb/data.lmdb
+      - /content/drive/MyDrive/NEW_DATASET/features/obj.lmdb,/content/drive/MyDrive/NEW_DATASET/features/spec.lmdb
     annotations:
       train:
       - /content/drive/MyDrive/NEW_DATASET/features/annotations/annotations.npy
