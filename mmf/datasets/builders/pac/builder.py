@@ -64,7 +64,7 @@ class PACBuilder(BaseDatasetBuilder):
     def load(self, config, dataset, *args, **kwargs):
         # Load the dataset using the CLEVRDataset class
         self.dataset = PACDataset(
-            config, dataset, data_folder=self.data_folder
+            config, dataset, imdb_file_index=0, data_folder=self.data_folder
         )
         return self.dataset
 
@@ -72,14 +72,14 @@ class PACBuilder(BaseDatasetBuilder):
         # Register both vocab (question and answer) sizes to registry for easy access to the
         # models. update_registry_for_model function if present is automatically called by
         # MMF
-        registry.register(
-            self.dataset_name + "_text_vocab_size",
-            self.dataset.text_processor.get_vocab_size(),
-        )
-        registry.register(
-            self.dataset_name + "_num_final_outputs",
-            self.dataset.answer_processor.get_vocab_size(),
-        )
+        if hasattr(self.dataset, "text_processor"):
+            registry.register(
+                self.dataset_name + "_text_vocab_size",
+                self.dataset.text_processor.get_vocab_size(),
+            )
+            registry.register(
+                f"{self.dataset_name}_text_processor", self.dataset.text_processor
+            )
         if hasattr(self.dataset, "answer_processor"):
             registry.register(
                 self.dataset_name + "_num_final_outputs",

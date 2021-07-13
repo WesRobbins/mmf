@@ -12,7 +12,7 @@ class PACDataset(TextVQADataset):
         sample_info = super().preprocess_sample_info(sample_info)
         # add dummy questions to train with M4C (for TextVQA)
         sample_info["question_str"] = ""  # empty question
-        sample_info["question_id"] = sample_info["caption_id"]
+        sample_info["question_id"] = 1#sample_info["caption_id"]
         return sample_info
 
     # def postprocess_evalai_entry(self, entry):
