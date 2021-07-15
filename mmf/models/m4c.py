@@ -179,6 +179,11 @@ class M4C(BaseModel):
         # sys.exit()
         # fwd_results holds intermediate forward pass results
         # TODO possibly replace it with another sample list
+        # from mmf.utils.distributed import byte_tensor_to_object, object_to_byte_tensor
+        # print(sample_list.keys())
+        # print(byte_tensor_to_object(sample_list['context_tokens'][0]))
+        # print(byte_tensor_to_object(sample_list['caption_str'][0]))
+        # return 
         fwd_results = {}
         self._forward_txt_encoding(sample_list, fwd_results)
         self._forward_obj_encoding(sample_list, fwd_results)
