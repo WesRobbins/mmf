@@ -41,14 +41,23 @@ if __name__ == "__main__":
 
     with open(args.pred_file) as f:
         preds = json.load(f)
+
+    if 'caption' in preds[0].keys():
+        mmf=True
+    else:
+        mmf=False
     annotation_file = args.annotation_file
     imdb = np.load(annotation_file, allow_pickle=True)
-    imdb = imdb[1:]
+    if mmf:
+        imdb = imdb[1:]
 
     gts = [
         {"image_id": info["image_id"], "caption": info["caption_str"]} for info in imdb
     ]
-    preds = [{"image_id": p["image_id"], "caption": p["caption"]} for p in preds]
+    if mmf:
+        preds = [{"image_id": p["image_id"], "caption": p["caption"]} for p in preds]
+    else:
+        preds = [{"image_id": p["image_id"], "caption": p["answer"]} for p in preds]
     imgids = list({g["image_id"] for g in gts})
 
     metrics = coco_caption_eval.calculate_metrics(
