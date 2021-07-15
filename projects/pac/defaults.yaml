@@ -5,6 +5,11 @@ optimizer:
     weight_decay: 0
   type: Adam
 
+multitasking:
+  enabled: true
+  type: constant
+  params: {}
+
 dataset_config:
   pac:
     data_dir: /content/drive/MyDrive/data/mmf
@@ -96,11 +101,11 @@ dataset_config:
     annotation_style: textcaps
     features:
       train:
-      - textvqa/defaults/features/open_images/detectron.lmdb
+      - textvqa/defaults/features/open_images/detectron.lmdb,textvqa/ocr_en/features/ocr_en_frcn_features.lmdb
       val:
-      - textvqa/defaults/features/open_images/detectron.lmdb
+      - textvqa/defaults/features/open_images/detectron.lmdb,textvqa/ocr_en/features/ocr_en_frcn_features.lmdb
       test:
-      - textvqa/defaults/features/open_images/detectron.lmdb
+      - textvqa/defaults/features/open_images/detectron.lmdb,textvqa/ocr_en/features/ocr_en_frcn_features.lmdb
     annotations:
       train:
       - textcaps/defaults/annotations/imdb_train.npy
