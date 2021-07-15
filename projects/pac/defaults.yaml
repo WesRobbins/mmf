@@ -7,8 +7,13 @@ optimizer:
 
 multitasking:
   enabled: true
-  type: constant
+  type: constant #ratios
   params: {}
+ # params:
+ #   sampling_ratios:
+ #     detection_coco: 0.2
+ #     detection_visual_genome: 0.07
+ #     visual_entailment: 0.12
 
 dataset_config:
   pac:

@@ -553,6 +553,30 @@ class CombinedLoss(nn.Module):
         return loss
 
 
+@registry.register_loss("m4c_decodiing_bbox_penalty")
+class M4CDecodingBboxPenalty(nn.Module):
+    """ Same as M4CDecodingBCEWithMaskLoss except with added penalty
+        for missing name """
+    def __init__(self):
+        super().__init__()
+        self.one = torch.Tensor([1.0])
+
+    def forward(self, sample_list, model_output):
+        scores = model_output["scores"]
+        targets = sample_list["targets"]
+        loss_mask = sample_list["train_loss_mask"]
+        bbox_pen = sample_list["bbox_penalty"]
+        assert scores.dim() == 3 and loss_mask.dim() == 2
+
+        losses = F.binary_cross_entropy_with_logits(scores, targets, reduction="none")
+        losses *= loss_mask.unsqueeze(-1)
+        losses *= bbox_pen.unsqueeze(-1)
+
+        count = torch.max(torch.sum(loss_mask), self.one.to(losses.device))
+        loss = torch.sum(losses) / count
+        return loss
+
+
 @registry.register_loss("m4c_decoding_bce_with_mask")
 class M4CDecodingBCEWithMaskLoss(nn.Module):
     def __init__(self):
