@@ -32,18 +32,18 @@ dataset_config:
     annotation_style: textcaps
     features:
      train:
-      - /content/drive/MyDrive/NEW_DATASET/features/obj.lmdb,/content/drive/MyDrive/NEW_DATASET/features/spec.lmdb
+      - /content/drive/MyDrive/NEW_DATASET/lmdbs/obj.lmdb,/content/drive/MyDrive/NEW_DATASET/lmdbs/ocr.lmdb
      val:
-      - /content/drive/MyDrive/NEW_DATASET/features/obj.lmdb,/content/drive/MyDrive/NEW_DATASET/features/spec.lmdb
+      - /content/drive/MyDrive/NEW_DATASET/lmdbs/obj.lmdb,/content/drive/MyDrive/NEW_DATASET/lmdbs/ocr.lmdb
      test:
-      - /content/drive/MyDrive/NEW_DATASET/features/obj.lmdb,/content/drive/MyDrive/NEW_DATASET/features/spec.lmdb
+      - /content/drive/MyDrive/NEW_DATASET/lmdbs/obj.lmdb,/content/drive/MyDrive/NEW_DATASET/lmdbs/ocr.lmdb
     annotations:
       train:
-      - /content/drive/MyDrive/NEW_DATASET/features/annotations/annotations.npy
+      - /content/drive/MyDrive/NEW_DATASET/npys/annotations/annotations.npy
       val:
-      - /content/drive/MyDrive/NEW_DATASET/features/annotations/annotations.npy
+      - /content/drive/MyDrive/NEW_DATASET/npys/annotations/annotations.npy
       test:
-      - /content/drive/MyDrive/NEW_DATASET/features/annotations/annotations.npy
+      - /content/drive/MyDrive/NEW_DATASET/npys/annotations/annotations.npy
 
     processors:
       text_processor:
