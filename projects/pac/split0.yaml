@@ -32,11 +32,11 @@ dataset_config:
     annotation_style: textcaps
     features:
      train:
-      - /content/drive/MyDrive/NEW_DATASET/lmdbs/splits/split0/obj.lmdb/train,/content/drive/MyDrive/NEW_DATASET/lmdbs/splits/split0/ocr.lmdb/train
+      - /content/drive/MyDrive/NEW_DATASET/lmdbs/splits/split0/obj.lmdb/train.lmdb,/content/drive/MyDrive/NEW_DATASET/lmdbs/splits/split0/ocr.lmdb/train.lmdb
      val:
-      - /content/drive/MyDrive/NEW_DATASET/lmdbs/splits/split0/obj.lmdb/test,/content/drive/MyDrive/NEW_DATASET/lmdbs/splits/split0/ocr.lmdb/test
+      - /content/drive/MyDrive/NEW_DATASET/lmdbs/splits/split0/obj.lmdb/test.lmdb,/content/drive/MyDrive/NEW_DATASET/lmdbs/splits/split0/ocr.lmdb/test.lmdb
      test:
-      - /content/drive/MyDrive/NEW_DATASET/lmdbs/splits/split0/obj.lmdb/test,/content/drive/MyDrive/NEW_DATASET/lmdbs/splits/split0/ocr.lmdb/test
+      - /content/drive/MyDrive/NEW_DATASET/lmdbs/splits/split0/obj.lmdb/test.lmdb,/content/drive/MyDrive/NEW_DATASET/lmdbs/splits/split0/ocr.lmdb/test.lmdb
     annotations:
       train:
       - /content/drive/MyDrive/NEW_DATASET/npys/annotations/splits/split0/train/annotations.npy
@@ -57,7 +57,7 @@ dataset_config:
       answer_processor:
         type: m4c_caption
         params:
-          vocab_file: /content/drive/MyDrive/data/mmf/datasets/textcaps/defaults/extras/vocabs/vocab_textcaps_threshold_10_nonames.txt
+          vocab_file: /content/drive/MyDrive/data/mmf/datasets/textcaps/defaults/extras/vocabs/vocab_textcaps_threshold_10_new.txt
           preprocessor:
             type: simple_word
             params: {}
