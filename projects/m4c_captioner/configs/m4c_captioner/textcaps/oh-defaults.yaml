@@ -22,7 +22,7 @@ dataset_config:
       train:
       - textcaps/defaults/annotations/oh_imdb_train.npy
       val:
-      - textcaps/defaults/annotations/imdb_val_filtered_by_image_id.npy  # only one sample per image_id
+      - textcaps/defaults/annotations/oh_imdb_val_filtered_by_image_id.npy  # only one sample per image_id
       test:
       - textcaps/defaults/annotations/imdb_test_filtered_by_image_id.npy  # only one sample per image_id
 

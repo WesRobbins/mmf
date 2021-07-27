@@ -5,6 +5,7 @@ from mmf.common.sample import Sample
 from mmf.datasets.mmf_dataset import MMFDataset
 from mmf.utils.distributed import byte_tensor_to_object, object_to_byte_tensor
 from mmf.utils.text import word_tokenize
+from sys import exit
 
 
 class TextVQADataset(MMFDataset):
@@ -207,6 +208,7 @@ class TextVQADataset(MMFDataset):
             sample.ocr_bbox_coordinates = self.bbox_processor(
                 {"info": sample_info["ocr_info"]}
             )["bbox"].coordinates
+
 
         if "onehot" in sample_info and hasattr(self, "copy_processor"):
             sample.onehot = self.copy_processor(
