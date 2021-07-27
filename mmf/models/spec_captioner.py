@@ -3,8 +3,8 @@ from mmf.common.registry import registry
 # from mmf.models.m4c import M4C
 
 
-@registry.register_model("m4c_captioner")
-class M4CCaptioner(M4C):
+@registry.register_model("spec_captioner")
+class SpecCaptioner(Spec):
     def __init__(self, config):
         super().__init__(config)
         self.remove_unk_in_pred = self.config.remove_unk_in_pred
@@ -47,8 +47,8 @@ from transformers.modeling_bert import (
 logger = logging.getLogger(__name__)
 
 
-@registry.register_model("m4c")
-class M4C(BaseModel):
+@registry.register_model("spec")
+class Spec(BaseModel):
     def __init__(self, config):
         super().__init__(config)
         self.mmt_config = BertConfig(**self.config.mmt)
