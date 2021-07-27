@@ -130,7 +130,7 @@ dataset_config:
       answer_processor:
         type: m4c_caption
         params:
-          vocab_file: textcaps/defaults/extras/vocabs/vocab_textcaps_threshold_10_nonames.txt
+          vocab_file: textcaps/defaults/extras/vocabs/vocab_textcaps_threshold_10_new.txt
           preprocessor:
             type: simple_word
             params: {}
@@ -169,7 +169,7 @@ evaluation:
   - textcaps_bleu4
 
 model_config:
-  m4c_captioner:
+  spec_captioner:
     lr_scale_frcn: 0.1
     lr_scale_text_bert: 0.1
     lr_scale_mmt: 1.0
@@ -196,7 +196,7 @@ model_config:
     losses:
     - type: m4c_decoding_bce_with_mask
     remove_unk_in_pred: true
-    model: m4c_captioner
+    model: spec_captioner
     
 training:
     clip_norm_mode: all

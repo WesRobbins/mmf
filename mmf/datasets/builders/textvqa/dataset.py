@@ -208,7 +208,14 @@ class TextVQADataset(MMFDataset):
                 {"info": sample_info["ocr_info"]}
             )["bbox"].coordinates
 
+        if "onehot" in sample_info and hasattr(self, "copy_processor"):
+            sample.onehot = self.copy_processor(
+                {"blob": sample_info["onehot"]}
+            )["blob"][:50]
+
         return sample
+
+        
 
     def add_answer_info(self, sample_info, sample):
         # Load real answers from sample_info
