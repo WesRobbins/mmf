@@ -33,6 +33,7 @@ dataset_config:
     features:
      train:
       - /content/drive/MyDrive/NEW_DATASET/lmdbs/splits/split0/obj.lmdb/train.lmdb,/content/drive/MyDrive/NEW_DATASET/lmdbs/splits/split0/ocr.lmdb/train.lmdb
+      - textvqa/defaults/features/open_images/detectron.lmdb,textvqa/ocr_en/features/ocr_en_frcn_features.lmdb
      val:
       - /content/drive/MyDrive/NEW_DATASET/lmdbs/splits/split0/obj.lmdb/test.lmdb,/content/drive/MyDrive/NEW_DATASET/lmdbs/splits/split0/ocr.lmdb/test.lmdb
      test:
@@ -40,6 +41,7 @@ dataset_config:
     annotations:
       train:
       - /content/drive/MyDrive/NEW_DATASET/npys/annotations/splits/split0/train/oh_annotations.npy
+      - textcaps/defaults/annotations/oh_imdb_train.npy
       val:
       - /content/drive/MyDrive/NEW_DATASET/npys/annotations/splits/split0/test/oh_annotations.npy
       test:
