@@ -11,9 +11,9 @@ multitasking:
   params: {}
  # params:
  #   sampling_ratios:
- #     detection_coco: 0.2
- #     detection_visual_genome: 0.07
- #     visual_entailment: 0.12
+ #     pac: 1
+ #     textcaps: 1
+
 
 dataset_config:
   pac:
