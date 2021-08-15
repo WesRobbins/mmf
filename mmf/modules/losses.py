@@ -565,17 +565,21 @@ class GPLoss(nn.Module):
         face_obj_idxs = [25,77,87]
         for i in face_obj_idxs: self.face_objs_mask[i] = .3
         self.face_objs_mask = self.face_objs_mask.expand(30,6786)
+        assert torch.equal(self.face_objs_mask[0], self.face_objs_mask[10])
+        print(torch.nonzero(self.face_objs_mask[20]))
 
     def forward(self, sample_list, model_output):
         scores = model_output["scores"]
         targets = sample_list["targets"]
-        print(scores)
-        print(targets)
+        # print(scores)
+        # print(targets)
         loss_mask = sample_list["train_loss_mask"]
         assert scores.dim() == 3 and loss_mask.dim() == 2
 
         losses = F.binary_cross_entropy_with_logits(scores, targets, reduction="none")
-        losses += self.face_objs_mask.unsqueeze(-1).to(losses.deivce) 
+        # print(losses.size())
+        # print(self.face_objs_mask.size())
+        losses += self.face_objs_mask.unsqueeze(0).to(losses.device) 
 
         losses *= loss_mask.unsqueeze(-1)
 
