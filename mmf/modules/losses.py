@@ -570,7 +570,7 @@ class GPLoss(nn.Module):
         face_obj_idxs = [25,77,87]
         if times:
            self.face_objs_mask = torch.ones(6786)
-           for i in face_obj_idxs: self.face_objs_mask[i] = 3 
+           for i in face_obj_idxs: self.face_objs_mask[i] = 6
         else:
             self.face_objs_mask = torch.zeros(6786)
             for i in face_obj_idxs: self.face_objs_mask[i] = .3
