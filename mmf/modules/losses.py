@@ -556,19 +556,36 @@ class CombinedLoss(nn.Module):
 
 
 from sys import exit
+from traceback import print_tb
 @registry.register_loss("gp_mdbce")
 class GPLoss(nn.Module):
     def __init__(self):
         super().__init__()
         self.one = torch.Tensor([1.0])
-        self.face_objs_mask = torch.zeros(6786)
+
+        times = True
+        self.times = times
+        print("times", times)
+        
         face_obj_idxs = [25,77,87]
-        for i in face_obj_idxs: self.face_objs_mask[i] = .3
+        if times:
+           self.face_objs_mask = torch.ones(6786)
+           for i in face_obj_idxs: self.face_objs_mask[i] = 3 
+        else:
+            self.face_objs_mask = torch.zeros(6786)
+            for i in face_obj_idxs: self.face_objs_mask[i] = .3
         self.face_objs_mask = self.face_objs_mask.expand(30,6786)
         assert torch.equal(self.face_objs_mask[0], self.face_objs_mask[10])
-        print(torch.nonzero(self.face_objs_mask[20]))
+        # print(torch.nonzero(self.face_objs_mask[20]))
 
-    def forward(self, sample_list, model_output):
+    def forward(self, sample_list, model_output, face=True):
+        if torch.equal(sample_list['onehot'][0][0], torch.tensor([1,0,0,0], dtype=torch.float32).to('cuda')):
+            ds = 'pac'
+            face=True
+        else:
+            ds = 'textcaps'
+            face=False
+        # print('batch from', ds)
         scores = model_output["scores"]
         targets = sample_list["targets"]
         # print(scores)
@@ -577,11 +594,13 @@ class GPLoss(nn.Module):
         assert scores.dim() == 3 and loss_mask.dim() == 2
 
         losses = F.binary_cross_entropy_with_logits(scores, targets, reduction="none")
-        # print(losses.size())
-        # print(self.face_objs_mask.size())
-        losses += self.face_objs_mask.unsqueeze(0).to(losses.device) 
-
-        losses *= loss_mask.unsqueeze(-1)
+       
+        if face:
+            if self.times:       
+                losses *= self.face_objs_mask.unsqueeze(0).to(losses.device) 
+            else:
+                losses += self.face_objs_mask.unsqueeze(0).to(losses.device)
+            losses *= loss_mask.unsqueeze(-1)
 
         count = torch.max(torch.sum(loss_mask), self.one.to(losses.device))
         loss = torch.sum(losses) / count
