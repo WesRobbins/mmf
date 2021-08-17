@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class TrainerEvaluationLoopMixin(ABC):
+    re=False
     def evaluation_loop(
         self, dataset_type: str, use_tqdm: bool = False, single_batch: bool = False
     ) -> Tuple[Dict[str, Any], Type[Meter]]:
@@ -113,6 +114,25 @@ class TrainerEvaluationLoopMixin(ABC):
 
         return combined_report, meter
 
+    def reorder_targ(self, ten, onehot):
+        if self.re:
+            print("REORDERING TARGETS")
+            self.re = False
+        size = ten.size()
+        new = torch.zeros(size).to('cuda')
+        # print(new.size())
+        # print(ten.size())
+        new[:,:,0:6736] = ten[:,:,0:6736]
+        for i in range(ten.size()[0]):
+            ind = 0
+            for j in range(10):
+                if onehot[i][j][0] == 1:
+                    ind = j+1
+            new[i,:,6736+40:6736+40+ind] = ten[i,:,6736+0:6736+ind]
+            new[i,:,6736+0:6736+40] = ten[i,:,6736+ind:40+6736+ind]
+        print(torch.argmax(new[0],1))
+        return new  
+
     def prediction_loop(self, dataset_type: str) -> None:
         reporter = self.dataset_loader.get_test_reporter(dataset_type)
         skipped_batches = 0
@@ -136,6 +156,7 @@ class TrainerEvaluationLoopMixin(ABC):
                             logger.info("Skip batch due to unequal batch sizes.")
                             skipped_batches += 1
                             continue
+                        prepared_batch['targets'] = self.reorder_targ(prepared_batch['targets'], prepared_batch['onehot'])
                         with torch.cuda.amp.autocast(enabled=self.training_config.fp16):
                             model_output = self.model(prepared_batch)
                         report = Report(prepared_batch, model_output)
