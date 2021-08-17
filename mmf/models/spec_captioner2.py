@@ -2,7 +2,7 @@
 from mmf.common.registry import registry
 # from mmf.models.m4c import M4C
 from sys import exit
-
+from traceback import print_exc
 import functools
 import logging
 import math
@@ -238,13 +238,13 @@ class Spec2(BaseModel):
             ind = 0
             for j in range(10):
                 if onehot[i][j][0] == 1:
-                    ind = j
+                    ind = j+1
             new[i,40:40+ind,:] = ten[i,0:ind,:]
             new[i][0:40,:] = ten[i,ind:40+ind,:]
-        
         return new       
 
     def _forward_ocr_encoding(self, sample_list, fwd_results):
+        # print_tb()
         onehot = sample_list.onehot
         # OCR FastText feature (300-dim)
         ocr_fasttext = sample_list.context_feature_0
@@ -260,9 +260,11 @@ class Spec2(BaseModel):
 
         # OCR appearance feature: Faster R-CNN fc7
         ocr_fc6 = sample_list.image_feature_1[:, : ocr_fasttext.size(1), :]
+        ocr_fc6 = self.reorder(ocr_fc6, onehot)
         ocr_fc7 = self.ocr_faster_rcnn_fc7(ocr_fc6)
         ocr_fc7 = F.normalize(ocr_fc7, dim=-1)
-        ocr_fc7 = self.reorder(ocr_fc7, onehot)
+        
+        
         
         # OCR order vectors (legacy from LoRRA model; set to all zeros)
         # TODO remove OCR order vectors; they are not needed
@@ -297,6 +299,7 @@ class Spec2(BaseModel):
         ) + self.ocr_bbox_layer_norm(
                 self.linear_ocr_bbox_to_mmt_in(ocr_bbox)
         ) + self.ocr_onehot_layernorm (self.linear_onehot_to_mmt_in(onehot))
+
         ocr_mmt_in = self.ocr_drop(ocr_mmt_in)
         fwd_results["ocr_mmt_in"] = ocr_mmt_in
 
