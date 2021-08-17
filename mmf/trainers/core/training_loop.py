@@ -162,24 +162,24 @@ class TrainerTrainingLoopMixin(ABC):
                 if should_break:
                     break
 
-    def reorder_targ(self, ten, onehot):
-        if self.re:
-            print("REORDERING TARGETS")
-            self.re = False
-        size = ten.size()
-        new = torch.zeros(size).to('cuda')
-        # print(new.size())
-        # print(ten.size())
-        new[:,:,0:6736] = ten[:,:,0:6736]
-        for i in range(ten.size()[0]):
-            ind = 0
-            for j in range(10):
-                if onehot[i][j][0] == 1:
-                    ind = j+1
-            new[i,:,6736+40:6736+40+ind] = ten[i,:,6736+0:6736+ind]
-            new[i,:,6736+0:6736+40] = ten[i,:,6736+ind:40+6736+ind]
-        print(torch.argmax(new[0],1))
-        return new 
+    # def reorder_targ(self, ten, onehot):
+    #     if self.re:
+    #         print("REORDERING TARGETS")
+    #         self.re = False
+    #     size = ten.size()
+    #     new = torch.zeros(size).to('cuda')
+    #     # print(new.size())
+    #     # print(ten.size())
+    #     new[:,:,0:6736] = ten[:,:,0:6736]
+    #     for i in range(ten.size()[0]):
+    #         ind = 0
+    #         for j in range(10):
+    #             if onehot[i][j][0] == 1:
+    #                 ind = j+1
+    #         new[i,:,6736+40:6736+40+ind] = ten[i,:,6736+0:6736+ind]
+    #         new[i,:,6736+0:6736+40] = ten[i,:,6736+ind:40+6736+ind]
+    #     print(torch.argmax(new[0],1))
+    #     return new 
 
     def run_training_batch(self, batch: Dict[str, Tensor], loss_divisor: int) -> None:
 
@@ -191,7 +191,7 @@ class TrainerTrainingLoopMixin(ABC):
     def _forward(self, batch: Dict[str, Tensor]) -> Dict[str, Any]:
         # Move the sample list to device if it isn't as of now.
         prepared_batch = to_device(batch, self.device)
-        prepared_batch['targets'] = self.reorder_targ(prepared_batch['targets'], prepared_batch['onehot'])
+        # prepared_batch['targets'] = self.reorder_targ(prepared_batch['targets'], prepared_batch['onehot'])
         self.profile("Batch prepare time")
         # Arguments should be a dict at this point
 
