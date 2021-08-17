@@ -130,7 +130,7 @@ class TrainerEvaluationLoopMixin(ABC):
                     ind = j+1
             new[i,:,6736+40:6736+40+ind] = ten[i,:,6736+0:6736+ind]
             new[i,:,6736+0:6736+40] = ten[i,:,6736+ind:40+6736+ind]
-        print(torch.argmax(new[0],1))
+        # print(torch.argmax(new[0],1))
         return new  
 
     def prediction_loop(self, dataset_type: str) -> None:
@@ -160,6 +160,10 @@ class TrainerEvaluationLoopMixin(ABC):
                         with torch.cuda.amp.autocast(enabled=self.training_config.fp16):
                             model_output = self.model(prepared_batch)
                         report = Report(prepared_batch, model_output)
+                        print(report.fields())
+                        print(torch.argmax(report['scores'][0],1)) 
+                        print(report['warning_string'])
+                        # exit()
                         reporter.add_to_report(report, self.model)
                         report.detach()
 
