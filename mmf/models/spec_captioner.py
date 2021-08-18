@@ -116,8 +116,12 @@ class Spec(BaseModel):
         self.remove_ocr_fasttext = getattr(
             self.config.ocr, "remove_ocr_fasttext", False
         )
+        if self.remove_ocr_fasttext:
+            logger.info("ocr fasttext diabled")
         self.remove_onehot = False
         self.remove_ocr_phoc = getattr(self.config.ocr, "remove_ocr_phoc", False)
+        if self.remove_ocr_phoc:
+            logger.info("ocr PHOC disabled")
         self.remove_ocr_frcn = getattr(self.config.ocr, "remove_ocr_frcn", False)
         self.remove_ocr_semantics = getattr(
             self.config.ocr, "remove_ocr_semantics", False
